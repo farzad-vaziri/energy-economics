@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Energy economics: live dashboards by Farzad Vaziri</title>
+<meta name="description" content="Three live dashboards on Britain's electricity grid: who is waiting to connect, where the grid runs out of room and what it costs, and how well demand can be forecast a day ahead, built on NESO open data.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Energy economics: live dashboards">
+<meta property="og:description" content="Britain's power grid in three live dashboards, built on open data.">
+<meta property="og:image" content="https://farzad-vaziri.github.io/energy-economics/assets/previews/atlas-main.jpg">
+<link rel="preload" href="assets/fonts/newsreader-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/newsreader-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:Newsreader;font-weight:400;font-display:swap;src:url(assets/fonts/newsreader-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Newsreader;font-weight:400;font-style:italic;font-display:swap;src:url(assets/fonts/newsreader-latin-400-italic.woff2) format('woff2')}
+@font-face{font-family:Newsreader;font-weight:600;font-display:swap;src:url(assets/fonts/newsreader-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:Newsreader;font-weight:700;font-display:swap;src:url(assets/fonts/newsreader-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:400;font-display:swap;src:url(assets/fonts/libre-franklin-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:600;font-display:swap;src:url(assets/fonts/libre-franklin-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:700;font-display:swap;src:url(assets/fonts/libre-franklin-latin-700-normal.woff2) format('woff2')}
+
+:root{--paper:#f6e8db;--paper-2:#efdccb;--ink:#1f1a16;--muted:#625649;--brick:#b0281c;--teal:#0f5f6e;--rule:#c9b29d;--rule-2:#1f1a16;--btn-ink:#fff;--img:none}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#1a1613;--paper-2:#241e1a;--ink:#f1e5d8;--muted:#b3a493;--brick:#ff7b66;--teal:#6cc4d3;--rule:#4a3f36;--rule-2:#f1e5d8;--btn-ink:#1a1613;--img:brightness(.9)}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Newsreader,Georgia,serif;font-size:1.125rem;line-height:1.55;font-variant-numeric:lining-nums}
+a{color:inherit}
+img{filter:var(--img)}
+.sans,.strip,.kick,.nav,.num-list span,figcaption,.links,.btn,.meta,.wu h4,footer,.byline{font-family:'Libre Franklin',system-ui,sans-serif}
+.wrap{max-width:1220px;margin:0 auto;padding:0 32px}
+.skip{position:absolute;left:-999px}.skip:focus{left:12px;top:12px;background:var(--paper);padding:8px;z-index:9}
+:focus-visible{outline:3px solid var(--brick);outline-offset:2px}
+.live{color:#1d7a3e;font-weight:600}
+@media (prefers-color-scheme:dark){.live{color:#6fd08f}}
+
+/* masthead */
+.strip{display:flex;justify-content:space-between;gap:16px;font-size:.75rem;letter-spacing:.04em;padding:10px 0;color:var(--muted);text-transform:uppercase}
+.mast{border-top:4px solid var(--rule-2);border-bottom:1px solid var(--rule-2);text-align:center;padding:22px 0 16px;position:relative}
+.mast::after{content:"";position:absolute;left:0;right:0;bottom:-5px;border-bottom:1px solid var(--rule-2)}
+.mast h1{font-weight:700;font-size:clamp(2.8rem,8vw,6rem);line-height:.95;letter-spacing:-.02em;margin:0}
+.mast h1 span{color:var(--brick)}
+.mast p{font-style:italic;font-size:1.25rem;margin:10px 0 0;color:var(--muted)}
+.nav{display:flex;justify-content:center;gap:0;margin:12px 0 0;border-bottom:1px solid var(--rule);font-size:.8125rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.nav a{text-decoration:none;padding:10px 18px;border-right:1px solid var(--rule)}
+.nav a:last-child{border-right:0}
+.nav a:hover{color:var(--brick)}
+
+/* lead story */
+.lead-story{display:grid;grid-template-columns:5fr 7fr;gap:40px;padding:34px 0 30px;border-bottom:1px solid var(--rule)}
+.kick{font-size:.8125rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brick)}
+.lead-story h2{font-size:clamp(2.2rem,4.2vw,3.5rem);line-height:1.02;font-weight:700;letter-spacing:-.015em;margin:10px 0 14px}
+.lead-story h2 a{text-decoration:none}.lead-story h2 a:hover{text-decoration:underline;text-decoration-thickness:2px}
+.standfirst{font-size:1.375rem;line-height:1.4;font-style:italic;margin:0 0 14px}
+.byline{font-size:.8125rem;color:var(--muted);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:7px 0;margin:0 0 16px}
+.byline b{color:var(--ink)}
+.dc::first-letter{float:left;font-size:4.1em;line-height:.85;font-weight:700;margin:6px 8px 0 0;color:var(--brick)}
+.lead-story p{margin:0 0 14px}
+.btn{display:inline-block;background:var(--brick);color:var(--btn-ink);padding:11px 18px;font-weight:700;font-size:.9375rem;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.more{font-family:'Libre Franklin',sans-serif;font-weight:600;font-size:.9375rem;margin-left:16px}
+.lead-story .m figure{margin:0}
+.lead-story .m img{width:100%;height:auto;display:block;border:1px solid var(--rule)}
+figcaption{font-size:.8125rem;color:var(--muted);padding-top:6px;line-height:1.4}
+figcaption b{color:var(--ink)}
+.also{padding:22px 0 28px;border-bottom:4px solid var(--rule-2)}
+.also h2{font-family:'Libre Franklin',sans-serif;font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px}
+.also .row{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.also figure{margin:0;border-top:3px solid var(--brick);padding-top:10px}
+.also img{width:100%;height:auto;display:block;border:1px solid var(--rule)}
+.also figcaption{font-family:Newsreader,serif;font-size:1.0625rem;font-weight:600;color:var(--ink);line-height:1.25}
+.also a:hover img,.story .pic:hover img{outline:2px solid var(--brick)}
+
+/* numbers */
+.numbers{padding:26px 0;border-bottom:1px solid var(--rule)}
+.numbers h2{font-family:'Libre Franklin',sans-serif;font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px}
+.num-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr)}
+.num-list li{border-left:1px solid var(--rule);padding:0 14px}
+.num-list li:first-child{border-left:0;padding-left:0}
+.num-list a{text-decoration:none;display:block}
+.num-list b{display:block;font-size:2.125rem;line-height:1.05;font-weight:700;color:var(--teal)}
+.num-list span{display:block;font-size:.8125rem;color:var(--muted);margin-top:6px;line-height:1.35}
+.num-list a:hover span{text-decoration:underline}
+
+/* analysis */
+section.s{padding:30px 0 10px}
+.sh{display:flex;align-items:baseline;gap:14px;border-top:4px solid var(--rule-2);padding-top:8px;margin-bottom:22px}
+.sh h2{font-size:1.875rem;font-weight:700;margin:0}
+.sh p{margin:0;color:var(--muted);font-style:italic}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.story{padding:0 28px 24px 0}
+.story + .story{padding:0 0 24px 28px;border-left:1px solid var(--rule)}
+.story h3{font-size:2rem;line-height:1.08;font-weight:700;margin:8px 0 14px;letter-spacing:-.01em}
+.story h3 a{text-decoration:none}.story h3 a:hover{text-decoration:underline}
+.story figure{margin:0 0 12px}
+.story img{width:100%;height:auto;display:block;border:1px solid var(--rule)}
+.sf{margin:0 0 12px}
+.links{display:flex;gap:18px;flex-wrap:wrap;font-weight:600;font-size:.9375rem}
+.links a:first-child{color:var(--brick)}
+
+/* methods */
+.wu{border-top:1px solid var(--rule);padding:26px 0 30px}
+.wu:first-of-type{border-top:0;padding-top:0}
+.wu h3{font-size:2.25rem;line-height:1.08;font-weight:700;margin:6px 0 6px;max-width:24em;letter-spacing:-.01em}
+.wu .meta{font-size:.875rem;color:var(--muted);margin:0 0 16px}
+.cols{columns:3 280px;column-gap:34px;column-rule:1px solid var(--rule)}
+.cols h4{font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brick);margin:0 0 4px;break-after:avoid}
+.cols p,.cols ul{margin:0 0 14px}
+.cols ul{padding-left:1.1em}.cols li{margin:0 0 6px}
+.cols p.lead::first-letter{float:left;font-size:3.4em;line-height:.85;font-weight:700;margin:5px 7px 0 0;color:var(--brick)}
+.wf{margin:20px 0 0;background:var(--paper-2);padding:14px;max-width:900px}
+.wf img{width:100%;height:auto;display:block}
+.wf figcaption span{display:block;font-style:italic}
+.act{margin:16px 0 0;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.top-link{font-family:'Libre Franklin',sans-serif;font-weight:600;font-size:.9375rem}
+
+footer{border-top:4px solid var(--rule-2);margin-top:20px;padding:16px 0 50px;display:grid;grid-template-columns:1fr 2fr;gap:30px;font-size:.8125rem;color:var(--muted)}
+footer .a{font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.06em}
+footer p{margin:0 0 8px}
+
+@media (max-width:1000px){
+  .num-list{grid-template-columns:repeat(3,1fr);row-gap:18px}
+  .num-list li:nth-child(4){border-left:0;padding-left:0}
+  .also .row{grid-template-columns:1fr 1fr}
+}
+@media (max-width:900px){
+  .lead-story{grid-template-columns:1fr}
+  .lead-story .m{order:-1}
+  .grid{grid-template-columns:1fr}
+  .story,.story + .story{padding:0 0 26px;border-left:0}
+  .story + .story{border-top:1px solid var(--rule);padding-top:22px}
+}
+@media (max-width:700px){
+  body{font-size:1.0625rem}
+  .wrap{padding:0 16px}
+  .strip .b{display:none}
+  .nav{font-size:.6875rem;letter-spacing:.04em}.nav a{padding:9px 9px}
+  .standfirst{font-size:1.1875rem}
+  .num-list{grid-template-columns:1fr 1fr}
+  .num-list li,.num-list li:nth-child(4){border-left:0;padding:0 8px 0 0}
+  .num-list b{font-size:1.75rem}
+  .story h3{font-size:1.625rem}
+  .wu h3{font-size:1.75rem}
+  .more{display:block;margin:12px 0 0}
+  .sh{display:block}.sh p{margin-top:4px}
+  footer{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+<div class="strip"><span>Collection · Energy economics</span><span class="b">Three live dashboards on Britain's electricity grid</span><span>Farzad Vaziri</span></div>
+<header class="mast" id="top">
+  <h1>Energy <span>Economics</span></h1>
+  <p>Britain's power grid: who is queuing to connect, where the wires fill up, and how much power we will need tomorrow</p>
+</header>
+<nav class="nav" aria-label="Sections"><a href="#lead">The big read</a><a href="#numbers">By the numbers</a><a href="#analysis">Analysis</a><a href="#methods">Methods</a></nav>
+
+<main id="main">
+<article class="lead-story" id="lead" aria-labelledby="lead-h">
+  <div>
+    <div class="kick">The big read · Connections · <span class="live">● Live</span></div>
+    <h2 id="lead-h"><a href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener">Who is waiting to plug into Britain's grid?</a></h2>
+    <p class="standfirst">Hundreds of gigawatts of wind, solar and batteries hold contracts to connect to the transmission grid. Far fewer will arrive on time.</p>
+    <p class="byline">By <b>Farzad Vaziri</b> · Dashboard 01 · Grid Connections Atlas</p>
+    <p class="dc">The connections register is built for contracts, not analysis. This dashboard turns it into a map of every project waiting to plug in, follows how Connections Reform cut a queue of more than 700 GW down to a planned pipeline, and sets what is contracted against the Clean Power 2030 ranges.</p>
+    <p>Survival models fitted on 14 archived copies of the register, going back to 2021, estimate which projects are likely to slip, and 2,000 simulated futures show how much capacity will actually be connected each year to 2035.</p>
+    <p><a class="btn" href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener">Open the dashboard →</a><a class="more" href="#w-atlas">Read the method ↓</a></p>
+  </div>
+  <div class="m"><figure><a href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener"><img src="assets/previews/atlas-main.jpg" width="1400" height="1615" alt="Map of Great Britain with bubbles at substations sized by capacity waiting to connect and coloured by technology"></a><figcaption><b>Where the queue plugs in.</b> Capacity contracted to connect by 2039, by substation and technology. Source: NESO TEC register, 19 Nov 2026</figcaption></figure></div>
+</article>
+
+<section class="also" aria-labelledby="also-h">
+  <h2 id="also-h">Also in this dashboard</h2>
+  <div class="row"><figure><a href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener"><img src="assets/previews/atlas-reform.jpg" width="800" height="600" loading="lazy" alt="Sankey of the connections queue before and after reform, with the technology mix of each bucket"></a><figcaption>From a 700 GW queue to a planned pipeline</figcaption></figure><figure><a href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener"><img src="assets/previews/atlas-risk.jpg" width="800" height="600" loading="lazy" alt="Survival curves of projects still not connected after their contracted date, and Cox model drivers of date slips"></a><figcaption>Which projects are likely to arrive late?</figcaption></figure><figure><a href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener"><img src="assets/previews/atlas-forecast.jpg" width="800" height="600" loading="lazy" alt="Fan chart of simulated offshore wind capacity connected each year to 2035 against the contracted schedule"></a><figcaption>What will actually be connected, year by year?</figcaption></figure><figure><a href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener"><img src="assets/previews/atlas-data.jpg" width="800" height="600" loading="lazy" alt="How the register was cleaned and each connection site located"></a><figcaption>Turning a messy register into a dataset</figcaption></figure></div>
+</section>
+
+<section class="numbers" id="numbers" aria-labelledby="num-h">
+  <h2 id="num-h">By the numbers</h2>
+  <ul class="num-list"><li><a href="#w-atlas"><b>628 GW</b><span>waiting to connect to the transmission grid</span></a></li><li><a href="#w-atlas"><b>16.0 GW</b><span>past its contracted date, not yet built</span></a></li><li><a href="#w-constraints"><b>£3.13bn</b><span>constraint costs in the last 12 months</span></a></li><li><a href="#w-constraints"><b>£112</b><span>of that per GB household</span></a></li><li><a href="#w-demand"><b>2.97%</b><span>error of the system operator's day-ahead forecast</span></a></li><li><a href="#w-demand"><b>2.78%</b><span>when it is averaged with an open model</span></a></li></ul>
+</section>
+
+<section class="s" id="analysis" aria-labelledby="an-h">
+  <div class="sh"><h2 id="an-h">Analysis</h2><p>What the grid costs when it fills up, and how well tomorrow's demand can be predicted.</p></div>
+  <div class="grid">
+    <article class="story">
+      <div class="kick">Constraints <span class="live">● Live</span></div>
+      <h3><a href="https://grid-constraint-map.streamlit.app" target="_blank" rel="noopener">Where the grid runs out of room</a></h3>
+      <figure><a class="pic" href="https://grid-constraint-map.streamlit.app" target="_blank" rel="noopener"><img src="assets/previews/constraint-card.jpg" width="1000" height="625" loading="lazy" alt="Map of GB transmission boundaries coloured by constraint cost, with a table of thermal cost by group and year"></a><figcaption><b>Grid Constraint Map</b> · Dashboard 02</figcaption></figure>
+      <p class="sf">Where does Britain's grid run out of room, and what does it cost? Map the bottlenecks, see why windy days are expensive, and set a 12-month cost forecast beside the system operator's own.</p>
+      <div class="links"><a href="https://grid-constraint-map.streamlit.app" target="_blank" rel="noopener">Open the dashboard →</a><a href="#w-constraints">Read the method ↓</a></div>
+    </article>
+    <article class="story">
+      <div class="kick">Demand <span class="live">● Live</span></div>
+      <h3><a href="https://grid-demand-forecast-explorer.streamlit.app" target="_blank" rel="noopener">Can an open model forecast Britain's electricity demand?</a></h3>
+      <figure><a class="pic" href="https://grid-demand-forecast-explorer.streamlit.app" target="_blank" rel="noopener"><img src="assets/previews/demand-card.jpg" width="1000" height="625" loading="lazy" alt="One day of half-hourly national demand against forecasts from NESO and three open models, with an 80% prediction band"></a><figcaption><b>Grid Demand Forecast</b> · Dashboard 03</figcaption></figure>
+      <p class="sf">Can an open model forecast Britain's electricity demand a day ahead? Compare naive, ridge and LightGBM forecasts with the system operator's own, half-hour by half-hour, and watch rooftop solar carve out the midday duck curve.</p>
+      <div class="links"><a href="https://grid-demand-forecast-explorer.streamlit.app" target="_blank" rel="noopener">Open the dashboard →</a><a href="#w-demand">Read the method ↓</a></div>
+    </article>
+  </div>
+</section>
+
+<section class="s" id="methods" aria-labelledby="me-h">
+  <div class="sh"><h2 id="me-h">Methods</h2><p>For each dashboard: the question, the data, the method, the main results and what to be careful about.</p></div>
+  <article class="wu" id="w-atlas">
+    <div class="kick">Connections · Dashboard 01</div>
+    <h3>Grid Connections Atlas: who is waiting to plug into Britain's grid?</h3>
+    <p class="meta">Great Britain · NESO TEC register of 19 Nov 2026 · 14 historic snapshots, Jan 2021 – Nov 2026</p>
+    <div class="cols"><h4>Question</h4><p class="lead">Which projects are waiting to connect to Britain's transmission grid, where do they plug in, how did Connections Reform reshape the queue, is enough capacity contracted for Clean Power 2030, and how much will actually be connected each year?</p><h4>Data</h4><p>NESO's Transmission Entry Capacity (TEC), interconnector and embedded registers (19 Nov 2026), grid supply point boundaries and lookups, Connections Reform results (December 2025) and the tables of its detailed results; 13 older TEC registers recovered from the Internet Archive (2021–2026); DESNZ's Clean Power 2030 Action Plan; OpenStreetMap substations. NESO Open Data Licence v1.0, Open Government Licence v3.0 and ODbL.</p><h4>Method</h4><ul><li>Dataset shaping: one row per project stage, so totals reconcile exactly with the raw register (594.6 GW to connect and 81.8 GW connected in the TEC register alone); multi-technology rows given a primary technology; identifiers harmonised across 14 snapshots.</li><li>Site matching: each of 1,265 connection-site names located by exact, normalised and fuzzy matching to NESO and OpenStreetMap substations, plus reviewed manual geocodes. 100% of 45 hand-checked automatic matches were placed correctly.</li><li>Delivery risk: Kaplan–Meier curves of the share still not connected after the contracted date, and a Cox model of date slips, checked on a time-based hold-out (concordance 0.73).</li><li>Build-out forecast: 2,000 Monte Carlo futures to 2035, drawing each project's delay from the model and allowing withdrawals at each technology's historical rate.</li></ul><h4>Main results</h4><p>628.0 GW is still waiting to connect (including interconnectors) against 93.9 GW already connected, across 2,086 projects; 16.0 GW is overdue. The largest single hotspot is Alverdiscott 400 kV (15.4 GW, mostly offshore wind). Reform cut an old queue of over 700 GW to a planned pipeline of 283 GW of generation and storage plus 99 GW of demand; batteries were hit hardest, with 153 GW not fitting the plan. On paper offshore wind has 54.1 GW contracted by 2030, but the simulations put the median at 25.8 GW (80% range 23.1–28.7 GW): only about a fifth of contracted additions arrive on time.</p><h4>What you can explore</h4><p>Filters for technology, status, gate, transmission owner, contracted year and agreement type; the map with a year slider; the reform Sankey; capacity against the Clean Power 2030 ranges; delay curves, Cox drivers and the highest-risk projects; the build-out fan chart; and a "behind the data" panel on turning a contracts register into an analysable dataset.</p><h4>Caveats</h4><ul><li>About a quarter of the pipeline sits at NESO placeholder nodes that are areas, not substations, and 17% could not be located.</li><li>Model outputs are estimates from public data, not judgements on any project or developer. Portfolio demo, not affiliated with NESO.</li></ul></div>
+    <figure class="wf"><img src="assets/previews/atlas-fig.jpg" width="1200" height="1073" loading="lazy" alt="For each technology, the Clean Power 2030 range against capacity connected today, contracted by 2030 and the model's median"><figcaption><b>Chart.</b> Against the plan: contracted capacity by 2030 and the model's median, beside the Clean Power 2030 ranges. <span>Source: NESO TEC register; DESNZ Clean Power 2030 Action Plan</span></figcaption></figure>
+    <p class="act"><a class="btn" href="https://grid-connections-atlas.streamlit.app" target="_blank" rel="noopener">Open the dashboard →</a><a class="top-link" href="#top">Back to top ↑</a></p>
+  </article>
+  <article class="wu" id="w-constraints">
+    <div class="kick">Constraints · Dashboard 02</div>
+    <h3>Grid Constraint Map: where the grid runs out of room</h3>
+    <p class="meta">Great Britain · daily costs April 2017 – 15 Nov 2026 · six thermal constraint groups</p>
+    <div class="cols"><h4>Question</h4><p class="lead">What does it cost when the wires between two parts of Britain are full, where are the bottlenecks, what drives the bill from day to day, and where is it heading over the next year?</p><h4>Data</h4><p>NESO open data: daily constraint costs and volumes by reason (FY 2017-18 to 2026-27), thermal costs by constraint group, ETYS 2024 boundary lines, the 24-month constraint cost forecast, historic generation mix (wind) and demand, and daily balancing costs as a cross-check. NESO Open Data Licence v1.0. Coastlines from Natural Earth; households from ONS.</p><h4>Method</h4><ul><li>Totals reconciled to NESO's separately published balancing costs within 0.2% for every full year.</li><li>Each of NESO's six thermal groups matched to a transmission boundary from NESO's own limits tables and constraint map.</li><li>The wind–cost curve: daily thermal cost against wind output with spline regression and gradient boosting, refitted for each year.</li><li>A 12-month P10–P90 forecast (seasonal naive × trend, SARIMAX with wind, and boosting with simulated weather), backtested from rolling origins, set beside NESO's own forecast; and an illustrative "bigger link from Scotland" scenario.</li></ul><h4>Main results</h4><p>Constraints cost £3.13bn over the 12 months to mid-November 2026, about £112 per GB household, and 92% of it was thermal. The bill has grown 5.6 times since FY 2017-18 (£397m to £2.21bn in FY 2025-26). The curve has shifted up as wind capacity outgrew the wires: a typical day with 10 GW of wind cost about £2.1m in FY 2017-18 and £7.3m in FY 2025-26. The central forecast for the next 12 months is £3.7bn. Illustratively, 2 GW more Scotland–England capacity would have saved about £38m in 2025-26.</p><h4>What you can explore</h4><p>Period, constraint reason and boundary group; the map and a group-by-year table; monthly cost by reason since 2017; the wind–cost curves; the forecast fan with its backtest; the link-size slider; and a calendar of every day since April 2017.</p><h4>Caveats</h4><ul><li>NESO publishes only part of thermal cost by group (about 19% in FY 2025-26), and the group-to-boundary mapping is this dashboard's approximation.</li><li>The link scenario is an illustration, not a network study. Portfolio demo, not affiliated with NESO.</li></ul></div>
+    <figure class="wf"><img src="assets/previews/constraint-fig.jpg" width="1200" height="686" loading="lazy" alt="Scatter of daily thermal constraint cost against wind output since 2017, with model curves for three years"><figcaption><b>Chart.</b> Windy days are expensive days, and more so each year. <span>Source: NESO constraint breakdown, historic generation mix</span></figcaption></figure>
+    <p class="act"><a class="btn" href="https://grid-constraint-map.streamlit.app" target="_blank" rel="noopener">Open the dashboard →</a><a class="top-link" href="#top">Back to top ↑</a></p>
+  </article>
+  <article class="wu" id="w-demand">
+    <div class="kick">Demand · Dashboard 03</div>
+    <h3>Grid Demand Forecast: can an open model forecast Britain's electricity demand?</h3>
+    <p class="meta">Great Britain · half-hourly national demand · test period 1 Apr 2025 – 31 Oct 2026</p>
+    <div class="cols"><h4>Question</h4><p class="lead">Can a day-ahead forecast of Britain's half-hourly national demand, built only from open data, match the system operator's own forecast, and where does each go wrong?</p><h4>Data</h4><p>NESO's day-ahead demand forecast performance data (the target and the benchmark) and historic demand data, NESO Open Data Licence v1.0; Open-Meteo day-ahead weather forecasts and ERA5 reanalysis, CC BY 4.0; GOV.UK bank holidays, Open Government Licence v3.0.</p><h4>Method</h4><ul><li>Strictly leakage-free: each forecast is issued at 09:00 the day before, using demand only to the end of two days earlier and the weather forecast actually available then; a test checks that no input comes from after the issue time.</li><li>Seasonal naive, ridge regression and LightGBM (tuned on a validation year, then frozen), plus quantile models with conformal calibration for an 80% band; refitted monthly from rolling origins over the test period.</li><li>Scored half-hour by half-hour against NESO's published day-ahead forecast: MAPE, MAE, peak error, interval coverage and a Diebold–Mariano test; SHAP values explain the model.</li></ul><h4>Main results</h4><p>NESO's forecast is the better one: 2.97% MAPE against 3.68% for the best open model (Diebold–Mariano p &lt; 0.001), though the open model was closer on 34% of days. A simple average of the two beats NESO alone (2.78%). The 80% interval covered 84% of half-hours. Errors peak around midday and on holidays, where rooftop solar matters most: average June midday demand fell from 31.0 GW in 2016 to 20.6 GW in 2026 as embedded solar grew from 10.5 to 24.0 GW.</p><h4>What you can explore</h4><p>Test dates, models, season and day type; a day explorer with presets (worst days, hottest day, Christmas); the scoreboard; error heatmaps by hour and month; the duck curve year by year; SHAP drivers; and error distributions.</p><h4>Caveats</h4><ul><li>NESO's operational forecast draws on information this model does not see, and is published around 09:30–09:45.</li><li>Embedded solar figures are NESO estimates, revised retrospectively. Portfolio demo, not affiliated with NESO.</li></ul></div>
+    <figure class="wf"><img src="assets/previews/demand-fig.jpg" width="1200" height="544" loading="lazy" alt="Bar chart and table of MAPE, MAE and peak error for each model over the test period"><figcaption><b>Chart.</b> The scoreboard: accuracy over every test half-hour. <span>Source: NESO day-ahead demand forecast performance; Open-Meteo</span></figcaption></figure>
+    <p class="act"><a class="btn" href="https://grid-demand-forecast-explorer.streamlit.app" target="_blank" rel="noopener">Open the dashboard →</a><a class="top-link" href="#top">Back to top ↑</a></p>
+  </article>
+</section>
+</main>
+
+<footer>
+  <div class="a">Farzad Vaziri · Energy economics</div>
+  <div>
+    <p>Supported by National Energy SO Open Data (NESO Open Data Licence v1.0). Also DESNZ, ONS and GOV.UK data under the Open Government Licence v3.0; Open-Meteo weather data (CC BY 4.0); OpenStreetMap contributors (ODbL); Natural Earth (public domain); map tiles © CARTO. Each dashboard carries its full credits.</p>
+    <p>The apps run on Streamlit's free tier, so one that hasn't been used for a while can take up to 30 seconds to wake. Portfolio demo, not affiliated with NESO; not official statistics or investment advice.</p>
+  </div>
+</footer>
+</div>
+</body>
+</html>
